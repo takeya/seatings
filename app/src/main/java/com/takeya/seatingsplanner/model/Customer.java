@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.Required;
 
@@ -25,7 +26,14 @@ public class Customer extends RealmObject {
     @Required
     private String name;
 
+    @Ignore
     private int reservedTableId;
+
+    public Customer(String surename, String name, int id) {
+        this.surename = surename;
+        this.name = name;
+        this.id = id;
+    }
 
     static void create(Realm realm) {
         Customers customers = realm.where(Customers.class).findFirst();
@@ -50,10 +58,8 @@ public class Customer extends RealmObject {
         return id;
     }
 
-    public Customer(String surename, String name, int id) {
-        this.surename = surename;
-        this.name = name;
-        this.id = id;
+    public void setReservedTableId(int reservedTableId) {
+        this.reservedTableId = reservedTableId;
     }
 
     public int getReservedTableId() {

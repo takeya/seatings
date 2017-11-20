@@ -1,7 +1,6 @@
 package com.takeya.seatingsplanner.adapters;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +20,7 @@ import io.realm.RealmRecyclerViewAdapter;
  */
 
 public class CustomerListAdapter extends
-                                 RealmRecyclerViewAdapter<Customer, CustomerListAdapter.ViewHolder> {
+                                 RealmRecyclerViewAdapter<Customer, CustomerListAdapter.CustomerViewHolder> {
 
     private final Context mCtx;
 
@@ -32,14 +31,14 @@ public class CustomerListAdapter extends
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public CustomerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View v = inflater.inflate(R.layout.fragment_customer_list_item, parent, false);
-        return new ViewHolder(v);
+        return new CustomerViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(CustomerViewHolder holder, int position) {
         Customer customer = getItem(position);
         holder.customerName.setText(
                 String.format("%s %s", customer.getSurename(), customer.getName()));
@@ -48,16 +47,20 @@ public class CustomerListAdapter extends
                         customer.getReservedTableId()));
     }
 
+    @Override
+    public long getItemId(int index) {
+        //noinspection ConstantConditions
+        return getItem(index).getId();
+    }
 
-
-    class ViewHolder extends RecyclerView.ViewHolder {
+    class CustomerViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.customer_item_name)
         TextView customerName;
         @BindView(R.id.customer_item_table_numer)
         TextView tableNumber;
         public View layout;
 
-        public ViewHolder(View itemView) {
+        public CustomerViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
             layout = itemView;
