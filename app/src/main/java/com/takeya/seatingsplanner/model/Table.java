@@ -17,7 +17,6 @@ public class Table extends RealmObject {
 
     private int reservedByCustomerId;
 
-    @Required
     private boolean reserved;
 
 }

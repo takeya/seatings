@@ -1,6 +1,7 @@
 package com.takeya.seatingsplanner.ui;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,33 +15,42 @@ import android.view.ViewGroup;
 
 import com.takeya.seatingsplanner.R;
 import com.takeya.seatingsplanner.adapters.CustomerListAdapter;
-import com.takeya.seatingsplanner.model.Customers;
+import com.takeya.seatingsplanner.model.Customer;
+import com.takeya.seatingsplanner.services.CustomersUpdateService;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.realm.Realm;
 
 /**
  * Created by Takeya on 19.11.2017.
  */
 
-public class CustomerListFragment extends Fragment {
+public class CustomerListFragment extends Fragment implements CustomerListAdapter.OnClickCallback {
 
     private Realm realm;
+
     @BindView(R.id.customer_recycler_view)
     public RecyclerView recyclerView;
+
     private CustomerListAdapter adapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         realm = Realm.getDefaultInstance();
+        Intent updateCustomerList = new Intent(getActivity(), CustomersUpdateService.class);
+        updateCustomerList.setAction(CustomersUpdateService.UPDATE_CUSTOMERS_INTENT);
+        getActivity().getApplicationContext().startService(updateCustomerList);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_customer_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_customer_list, container, false);
+        ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
@@ -51,7 +61,8 @@ public class CustomerListFragment extends Fragment {
 
     private void setUpRecyclerView() {
         adapter = new CustomerListAdapter(getActivity().getApplicationContext(),
-                realm.where(Customers.class).findFirst().getCustomersList());
+                realm.where(Customer.class).findAll(),
+                this);
         recyclerView
                 .setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         recyclerView.setAdapter(adapter);
@@ -63,24 +74,36 @@ public class CustomerListFragment extends Fragment {
         TouchHelperCallback touchHelperCallback = new TouchHelperCallback();
         ItemTouchHelper touchHelper = new ItemTouchHelper(touchHelperCallback);
         touchHelper.attachToRecyclerView(recyclerView);
+
+    }
+
+    @Override
+    public void onListItemClicked(int customerId) {
+        TableOverviewFragment tableOverviewFragment = new TableOverviewFragment();
+        Bundle tableOverviewBundle = new Bundle();
+        tableOverviewBundle.putInt(TableOverviewFragment.CUSTOMER_ID, customerId);
+        tableOverviewFragment.setArguments(tableOverviewBundle);
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .add(R.id.main_container, tableOverviewFragment).commit();
     }
 
     private class TouchHelperCallback extends ItemTouchHelper.SimpleCallback {
 
         TouchHelperCallback() {
-            super(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
-                    0);
+            super(0, 0);
         }
 
         @Override
         public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
                               RecyclerView.ViewHolder target) {
-            return true;
+            return false;
         }
 
         @Override
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
             // No swipe used
         }
+
+
     }
 }

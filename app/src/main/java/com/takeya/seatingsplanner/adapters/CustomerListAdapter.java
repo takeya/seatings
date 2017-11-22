@@ -23,10 +23,17 @@ public class CustomerListAdapter extends
                                  RealmRecyclerViewAdapter<Customer, CustomerListAdapter.CustomerViewHolder> {
 
     private final Context mCtx;
+    private final OnClickCallback customerListFragmentCallback;
 
-    public CustomerListAdapter(Context ctx, OrderedRealmCollection<Customer> entries) {
+    public interface OnClickCallback {
+        void onListItemClicked(int customerId);
+    }
+
+    public CustomerListAdapter(Context ctx, OrderedRealmCollection<Customer> entries,
+                               OnClickCallback customerListFragment) {
         super(entries, true);
         this.mCtx = ctx;
+        this.customerListFragmentCallback = customerListFragment;
         setHasStableIds(true);
     }
 
@@ -39,12 +46,19 @@ public class CustomerListAdapter extends
 
     @Override
     public void onBindViewHolder(CustomerViewHolder holder, int position) {
-        Customer customer = getItem(position);
+        final Customer customer = getItem(position);
         holder.customerName.setText(
-                String.format("%s %s", customer.getSurename(), customer.getName()));
+                String.format("%s %s", customer.getCustomerFirstName(),
+                        customer.getCustomerLastName()));
         holder.tableNumber.setText(
                 String.format(mCtx.getString(R.string.cutomer_item_table_number_d),
                         customer.getReservedTableId()));
+        holder.layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                customerListFragmentCallback.onListItemClicked(customer.getId());
+            }
+        });
     }
 
     @Override
@@ -52,6 +66,8 @@ public class CustomerListAdapter extends
         //noinspection ConstantConditions
         return getItem(index).getId();
     }
+
+
 
     class CustomerViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.customer_item_name)

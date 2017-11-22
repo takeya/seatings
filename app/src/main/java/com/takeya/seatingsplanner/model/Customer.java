@@ -1,7 +1,6 @@
 package com.takeya.seatingsplanner.model;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
+import io.realm.MutableRealmInteger;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
@@ -17,41 +16,43 @@ public class Customer extends RealmObject {
 
     public static final String FIELD_ID = "id";
 
-    private static AtomicInteger INTEGER_COUNTER = new AtomicInteger(0);
+    public static final MutableRealmInteger customerCounter = MutableRealmInteger.valueOf(0);
 
     @PrimaryKey
     private int id;
     @Required
-    private String surename;
+    private String customerFirstName;
     @Required
-    private String name;
+    private String customerLastName;
 
     @Ignore
     private int reservedTableId;
 
-    public Customer(String surename, String name, int id) {
-        this.surename = surename;
-        this.name = name;
+    public Customer(){
+
+    }
+
+    public Customer(String firstName, String lastName, int id) {
+        this.customerFirstName = firstName;
+        this.customerLastName = lastName;
         this.id = id;
     }
 
-    static void create(Realm realm) {
-        Customers customers = realm.where(Customers.class).findFirst();
-        RealmList<Customer> items = customers.getCustomersList();
-        Customer customer = realm.createObject(Customer.class, increment());
-        items.add(customer);
+    static Customer create(Realm realm) {
+        customerCounter.set(realm.where(Customer.class).count());
+        customerCounter.increment(1);
+        realm.beginTransaction();
+        Customer customer = realm.createObject(Customer.class, customerCounter.get());
+        realm.commitTransaction();
+        return customer;
     }
 
-    private static int increment() {
-        return INTEGER_COUNTER.getAndIncrement();
+    public String getCustomerFirstName() {
+        return customerFirstName;
     }
 
-    public String getSurename() {
-        return surename;
-    }
-
-    public String getName() {
-        return name;
+    public String getCustomerLastName() {
+        return customerLastName;
     }
 
     public int getId() {
