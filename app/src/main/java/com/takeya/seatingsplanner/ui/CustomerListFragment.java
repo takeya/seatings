@@ -74,7 +74,6 @@ public class CustomerListFragment extends Fragment implements CustomerListAdapte
         TouchHelperCallback touchHelperCallback = new TouchHelperCallback();
         ItemTouchHelper touchHelper = new ItemTouchHelper(touchHelperCallback);
         touchHelper.attachToRecyclerView(recyclerView);
-
     }
 
     @Override
