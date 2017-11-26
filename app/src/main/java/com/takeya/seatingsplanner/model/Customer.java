@@ -15,8 +15,9 @@ import io.realm.annotations.Required;
 public class Customer extends RealmObject {
 
     public static final String FIELD_ID = "id";
+    public static final int NO_RESERVED_TABLE = -1;
 
-    public static final MutableRealmInteger customerCounter = MutableRealmInteger.valueOf(0);
+    private static final MutableRealmInteger customerCounter = MutableRealmInteger.valueOf(0);
 
     @PrimaryKey
     private int id;
@@ -25,8 +26,7 @@ public class Customer extends RealmObject {
     @Required
     private String customerLastName;
 
-    @Ignore
-    private int reservedTableId;
+    private int reservedTableId = NO_RESERVED_TABLE;
 
     public Customer(){
 

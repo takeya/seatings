@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,7 +18,7 @@ import android.view.ViewGroup;
 import com.takeya.seatingsplanner.R;
 import com.takeya.seatingsplanner.adapters.CustomerListAdapter;
 import com.takeya.seatingsplanner.model.Customer;
-import com.takeya.seatingsplanner.services.CustomersUpdateService;
+import com.takeya.seatingsplanner.services.UpdateService;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -28,6 +30,7 @@ import io.realm.Realm;
 
 public class CustomerListFragment extends Fragment implements CustomerListAdapter.OnClickCallback {
 
+    private static final String TAG = CustomerListFragment.class.getName();
     private Realm realm;
 
     @BindView(R.id.customer_recycler_view)
@@ -39,9 +42,6 @@ public class CustomerListFragment extends Fragment implements CustomerListAdapte
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         realm = Realm.getDefaultInstance();
-        Intent updateCustomerList = new Intent(getActivity(), CustomersUpdateService.class);
-        updateCustomerList.setAction(CustomersUpdateService.UPDATE_CUSTOMERS_INTENT);
-        getActivity().getApplicationContext().startService(updateCustomerList);
     }
 
     @Nullable
@@ -83,8 +83,11 @@ public class CustomerListFragment extends Fragment implements CustomerListAdapte
         Bundle tableOverviewBundle = new Bundle();
         tableOverviewBundle.putInt(TableOverviewFragment.CUSTOMER_ID, customerId);
         tableOverviewFragment.setArguments(tableOverviewBundle);
-        getActivity().getSupportFragmentManager().beginTransaction()
-                .add(R.id.main_container, tableOverviewFragment).commit();
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragmentTransaction
+                .replace(R.id.main_container, tableOverviewFragment);
+        fragmentTransaction.addToBackStack(TAG);
+        fragmentTransaction.commit();
     }
 
     private class TouchHelperCallback extends ItemTouchHelper.SimpleCallback {
@@ -96,7 +99,7 @@ public class CustomerListFragment extends Fragment implements CustomerListAdapte
         @Override
         public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
                               RecyclerView.ViewHolder target) {
-            return false;
+            return true;
         }
 
         @Override
