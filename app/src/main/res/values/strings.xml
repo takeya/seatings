@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">SeatingsPlanner</string>
     <string name="cutomer_item_table_number_d">Table: %d</string>
+    <string name="fragment_overview_item_table">Table #</string>
 </resources>

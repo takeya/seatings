@@ -1,10 +1,10 @@
 package com.takeya.seatingsplanner.model;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
+import io.realm.MutableRealmInteger;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.Required;
 
@@ -15,45 +15,52 @@ import io.realm.annotations.Required;
 public class Customer extends RealmObject {
 
     public static final String FIELD_ID = "id";
+    public static final int NO_RESERVED_TABLE = -1;
 
-    private static AtomicInteger INTEGER_COUNTER = new AtomicInteger(0);
+    private static final MutableRealmInteger customerCounter = MutableRealmInteger.valueOf(0);
 
     @PrimaryKey
     private int id;
     @Required
-    private String surename;
+    private String customerFirstName;
     @Required
-    private String name;
+    private String customerLastName;
 
-    private int reservedTableId;
+    private int reservedTableId = NO_RESERVED_TABLE;
 
-    static void create(Realm realm) {
-        Customers customers = realm.where(Customers.class).findFirst();
-        RealmList<Customer> items = customers.getCustomersList();
-        Customer customer = realm.createObject(Customer.class, increment());
-        items.add(customer);
+    public Customer(){
+
     }
 
-    private static int increment() {
-        return INTEGER_COUNTER.getAndIncrement();
+    public Customer(String firstName, String lastName, int id) {
+        this.customerFirstName = firstName;
+        this.customerLastName = lastName;
+        this.id = id;
     }
 
-    public String getSurename() {
-        return surename;
+    static Customer create(Realm realm) {
+        customerCounter.set(realm.where(Customer.class).count());
+        customerCounter.increment(1);
+        realm.beginTransaction();
+        Customer customer = realm.createObject(Customer.class, customerCounter.get());
+        realm.commitTransaction();
+        return customer;
     }
 
-    public String getName() {
-        return name;
+    public String getCustomerFirstName() {
+        return customerFirstName;
+    }
+
+    public String getCustomerLastName() {
+        return customerLastName;
     }
 
     public int getId() {
         return id;
     }
 
-    public Customer(String surename, String name, int id) {
-        this.surename = surename;
-        this.name = name;
-        this.id = id;
+    public void setReservedTableId(int reservedTableId) {
+        this.reservedTableId = reservedTableId;
     }
 
     public int getReservedTableId() {
