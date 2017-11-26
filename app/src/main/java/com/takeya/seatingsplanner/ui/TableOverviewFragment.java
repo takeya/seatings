@@ -47,7 +47,7 @@ public class TableOverviewFragment extends Fragment implements AdapterView.OnIte
         super.setArguments(args);
         Bundle arguments = getArguments();
         if (arguments == null) {
-            Log.e(TAG, "current Customer Id is not available");
+            Log.e(TAG, "No arguments added to fragment containing current customer ID.");
             throw new NullPointerException();
         }
         currentCustomerId = arguments.getInt(CUSTOMER_ID);

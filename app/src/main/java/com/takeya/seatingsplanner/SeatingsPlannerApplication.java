@@ -19,6 +19,8 @@ public class SeatingsPlannerApplication extends Application {
         super.onCreate();
         Realm.init(this);
         RealmConfiguration realmConfig = new RealmConfiguration.Builder().build();
+
+        /*DEBUG entry - comment in while debugging to remove all entries after app restart*/
 //        Realm.deleteRealm(realmConfig); // Delete Realm between app restarts.
 //        SharedPreferences preferences = PreferenceManager
 //                .getDefaultSharedPreferences(getApplicationContext());
